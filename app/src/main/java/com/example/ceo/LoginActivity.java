@@ -1,6 +1,7 @@
 package com.example.ceo;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -14,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -21,7 +23,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText _emailText;
     EditText _passwordText;
     Button _loginButton;
-    String url = "18.224.27.15";
+    String url = "http://ec2-52-14-10-206.us-east-2.compute.amazonaws.com";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
         InputStream is = null;
 
         try {
-            URL url = new URL(myURL);
+            URL url = new URL(myURL+":80");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
@@ -101,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
             if (responseCode == 200) {
-                System.out.println("hihihihihi");
+                System.out.println("everything is ok");
                 is = conn.getInputStream();
 
                 byte[] buffer = new byte[8192];
@@ -115,11 +117,11 @@ public class LoginActivity extends AppCompatActivity {
                     return true;
                 }
                 else{
-                    System.out.println("hehehehe");
                     return false;
                 }
             } else {
-                Toast.makeText(getBaseContext(), "Problems with server connection", Toast.LENGTH_LONG).show();
+                System.out.println("problems!");
+               return false;
             }
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -141,8 +143,21 @@ public class LoginActivity extends AppCompatActivity {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        //makeHTTPGet(email, password, url);
-        return true;
+        Thread thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try  {
+                    makeHTTPGet(email, password, url);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
+
+        return true;  //TODO this is just for now since server does not handle the requests yet
     }
 
     public void onLoginFailed() {

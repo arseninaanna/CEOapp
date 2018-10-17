@@ -29,6 +29,13 @@
                 android:padding="8dp"
                 android:paddingTop="16dp" />
 
+            <com.jjoe64.graphview.GraphView
+                android:id="@+id/income"
+                android:layout_width="match_parent"
+                android:layout_height="200dip"
+                android:padding="8dp"
+                android:paddingTop="16dp" />
+
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>
