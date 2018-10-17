@@ -3,13 +3,6 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/my_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:elevation="4dp"
-        android:theme="@style/AppTheme"/>
-
     <TextView
         android:id="@+id/textview"
         android:layout_width="match_parent"

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -20,7 +21,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText _emailText;
     EditText _passwordText;
     Button _loginButton;
-    String url = "";
+    String url = "18.224.27.15";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,42 +81,51 @@ public class LoginActivity extends AppCompatActivity {
         byte[] data = null;
         InputStream is = null;
 
+        try {
+            URL url = new URL(myURL);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
 
-        URL url = new URL(myURL);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setDoOutput(true);
-        conn.setDoInput(true);
+            conn.setRequestProperty("Content-Length", "" + Integer.toString(parammetrs.getBytes().length));
+            OutputStream os = conn.getOutputStream();
+            data = parammetrs.getBytes("UTF-8");
+            os.write(data);
+            System.out.println("data: " + data);
+            data = null;
 
-        conn.setRequestProperty("Content-Length", "" + Integer.toString(parammetrs.getBytes().length));
-        OutputStream os = conn.getOutputStream();
-        data = parammetrs.getBytes("UTF-8");
-        os.write(data);
-        data = null;
+            conn.connect();
+            int responseCode= conn.getResponseCode();
 
-        conn.connect();
-        int responseCode= conn.getResponseCode();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            if (responseCode == 200) {
+                System.out.println("hihihihihi");
+                is = conn.getInputStream();
 
-        if (responseCode == 200) {
-            is = conn.getInputStream();
-
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = is.read(buffer)) != -1) {
-                baos.write(buffer, 0, bytesRead);
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    baos.write(buffer, 0, bytesRead);
+                }
+                data = baos.toByteArray();
+                String resultString = new String(data, "UTF-8");
+                if(resultString.equals("OK")){
+                    return true;
+                }
+                else{
+                    System.out.println("hehehehe");
+                    return false;
+                }
+            } else {
+                Toast.makeText(getBaseContext(), "Problems with server connection", Toast.LENGTH_LONG).show();
             }
-            data = baos.toByteArray();
-            String resultString = new String(data, "UTF-8");
-            if(resultString.equals("OK")){
-                return true;
-            }
-            else{
-                return false;
-            }
-        } else {
-            Toast.makeText(getBaseContext(), "Problems with server connection", Toast.LENGTH_LONG).show();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
         }
 
         return false;
@@ -131,7 +141,7 @@ public class LoginActivity extends AppCompatActivity {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        //return makeHTTPGet(email, password, url);
+        //makeHTTPGet(email, password, url);
         return true;
     }
 

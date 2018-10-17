@@ -3,13 +3,6 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
-    android:id="@+id/my_toolbar"
-    android:layout_width="match_parent"
-    android:layout_height="30dp"
-    android:elevation="4dp"
-    android:theme="@style/AppTheme"/>
-
     <Button
         android:id="@+id/map"
         android:layout_width="match_parent"
@@ -21,11 +14,13 @@
         android:id="@+id/stat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="show statistics" />
+        android:text="show statistics"
+        android:layout_margin="5dp"/>
 
     <Button
         android:id="@+id/logout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="log out" />
+        android:text="log out"
+        android:layout_margin="5dp"/>
 </LinearLayout>
