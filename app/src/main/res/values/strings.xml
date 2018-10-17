@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name">CEO</string>
 
+    <!-- Map activity FIXME: store access token in secure way  -->
+    <string name="access_token">pk.eyJ1IjoiYWFyc2VuaW5hIiwiYSI6ImNqbXl0M2MxNDBwMHkzd3BsZWV2bzcxc24ifQ.7xQMect06pDH4d4fzpqLeg</string>
+
     <!-- Graphs activity -->
     <string name="graphs_activity_label">Graphs</string>
     <string name="customer_happiness_label">Customer\'s happiness</string>
+    
+
 </resources>

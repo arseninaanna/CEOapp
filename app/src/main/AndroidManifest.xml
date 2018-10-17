@@ -23,9 +23,9 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".MapActivity"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".GraphsActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 </manifest>
