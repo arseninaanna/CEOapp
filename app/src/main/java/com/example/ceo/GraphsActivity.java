@@ -70,7 +70,7 @@ public class GraphsActivity extends AppCompatActivity {
         for (int i = 0; i < x.length; i++) {
             DataPoint point = new DataPoint(x[i], y[i]);
             series.appendData(point, true, 100, false);
-
+            series.setSpacing(3);
         }
         series.setDrawValuesOnTop(true);
         series.setValuesOnTopColor(Color.RED);
