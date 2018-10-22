@@ -27,8 +27,6 @@ public class GraphsActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> finish());
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        // FIXME: Make this more elegant
-        // Adding data to the graphs:
 
         GraphView happiness = findViewById(R.id.happiness);
         graphSettings(happiness, getResources().getString(R.string.customer_happiness_label));

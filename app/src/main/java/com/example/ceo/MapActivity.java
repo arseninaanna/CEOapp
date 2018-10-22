@@ -32,7 +32,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         // Add the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.graphs_activity_label);
+        toolbar.setTitle(R.string.map);
         setSupportActionBar(toolbar);
 
         // Set back button on toolbar

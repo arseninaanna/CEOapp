@@ -4,10 +4,21 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,7 +26,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -23,7 +33,8 @@ public class LoginActivity extends AppCompatActivity {
     EditText _emailText;
     EditText _passwordText;
     Button _loginButton;
-    String url = "http://ec2-52-14-10-206.us-east-2.compute.amazonaws.com";
+    String url = "http://ec2-18-206-98-189.compute-1.amazonaws.com";
+    boolean flag = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,11 +50,10 @@ public class LoginActivity extends AppCompatActivity {
                 _emailText = (EditText) findViewById(R.id.input_email);
                 _passwordText = (EditText) findViewById(R.id.input_password);
                 try {
-                    if(login()){
+                    if (login()) {
                         Intent intent = new Intent(getApplicationContext(), MenuActivity.class);
                         startActivity(intent);
-                    }
-                    else{
+                    } else {
                         Toast.makeText(getBaseContext(), "Login or password is wrong", Toast.LENGTH_LONG).show();
                     }
                 } catch (IOException e) {
@@ -84,21 +94,23 @@ public class LoginActivity extends AppCompatActivity {
         InputStream is = null;
 
         try {
-            URL url = new URL(myURL+":80");
+            URL url = new URL(myURL + ":80");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             conn.setDoInput(true);
+            conn.setConnectTimeout(5000);
 
             conn.setRequestProperty("Content-Length", "" + Integer.toString(parammetrs.getBytes().length));
             OutputStream os = conn.getOutputStream();
             data = parammetrs.getBytes("UTF-8");
             os.write(data);
-            System.out.println("data: " + data);
+            System.out.println("data: " + data.toString());
             data = null;
 
             conn.connect();
-            int responseCode= conn.getResponseCode();
+            int responseCode = conn.getResponseCode();
+            System.out.println("response code: " + responseCode);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -113,24 +125,59 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 data = baos.toByteArray();
                 String resultString = new String(data, "UTF-8");
-                if(resultString.equals("OK")){
+                if (resultString.equals("OK")) {
+                    conn.disconnect();
                     return true;
-                }
-                else{
+                } else {
+                    conn.disconnect();
                     return false;
                 }
             } else {
+                conn.disconnect();
                 System.out.println("problems!");
-               return false;
+                return false;
             }
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
         return false;
+    }
+
+    public void makeHTTPPost(String email, String password, String myURL) {
+        VolleyLog.DEBUG = true;
+        try {
+            RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+            JSONObject jsonBody = new JSONObject();
+            jsonBody.put("email", email);
+            jsonBody.put("password", password);
+
+            JsonObjectRequest jr = new JsonObjectRequest(myURL, jsonBody, response -> {
+                //String res = response.toString();
+                //System.out.println("Response: " + res);
+                /*try {
+                    JSONArray arr = new JSONArray(res);
+                    JSONObject jObj = arr.getJSONObject(0);
+                    String str = jObj.getString("response");
+                    if (str.equals("OK")){
+                        flag = true;
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }*/
+                Log.i("VOLLEY", response.toString());
+            }, error -> {
+                Log.e("VOLLEY", "Post request failed: " + error.toString(), error);
+            });
+
+            requestQueue.add(jr);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean login() throws IOException, URISyntaxException {
@@ -147,16 +194,19 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void run() {
-                try  {
-                    makeHTTPGet(email, password, url);
+                try {
+                    flag = false;
+                    makeHTTPPost(email, password, url);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
             }
+
         });
 
         thread.start();
-
+        //return flag;
         return true;  //TODO this is just for now since server does not handle the requests yet
     }
 

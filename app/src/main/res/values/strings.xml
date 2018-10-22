@@ -7,6 +7,7 @@
     <!-- Graphs activity -->
     <string name="graphs_activity_label">Graphs</string>
     <string name="customer_happiness_label">Customer\'s happiness</string>
+    <string name="map">Map with drivers</string>
     <string name="orders_number_label">Number of orders</string>
     <string name="income_number">Income</string>
     <string name="url">http://ec2–52-14-10-206.us-east-2.compute.amazonaws.com</string>
