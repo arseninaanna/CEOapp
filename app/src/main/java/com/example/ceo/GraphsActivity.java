@@ -1,19 +1,36 @@
 package com.example.ceo;
 
+import android.app.VoiceInteractor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
-import java.util.Date;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GraphsActivity extends AppCompatActivity {
+
+    String url = "http://ec2-52-14-10-206.us-east-2.compute.amazonaws.com/graphs";
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graphs);
@@ -27,6 +44,16 @@ public class GraphsActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> finish());
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(new Runnable() {
+
+            @Override
+            public void run() {
+                HTTPService service = new HTTPService();
+                JSONArray array = service.getHTTP(url, getApplicationContext());
+
+            }
+        }, 0, 1, TimeUnit.DAYS);
 
         GraphView happiness = findViewById(R.id.happiness);
         graphSettings(happiness, getResources().getString(R.string.customer_happiness_label));
@@ -50,6 +77,9 @@ public class GraphsActivity extends AppCompatActivity {
         double y3[] = {50000, 27000, 49000, 53400, 55000};
         income.addSeries(addBarSeries(x3, y3));
 
+    }
+
+    public void parseJSON(){
     }
 
     public LineGraphSeries<DataPoint> addSeries(double x[], double y[]) {
@@ -87,4 +117,35 @@ public class GraphsActivity extends AppCompatActivity {
         graph.setTitleTextSize(52);
 
     }
+
+    public void makeHTTP(){
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray jsonArray = response.getJSONArray("employees");
+
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject employee = jsonArray.getJSONObject(i);
+
+                                String firstName = employee.getString("firstname");
+                                int age = employee.getInt("age");
+                                String mail = employee.getString("mail");
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        requestQueue.add(request);
+    }
+
 }
