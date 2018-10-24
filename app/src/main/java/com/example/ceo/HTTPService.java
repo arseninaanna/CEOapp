@@ -18,7 +18,7 @@ import org.json.JSONObject;
 public class HTTPService extends Activity {
 
     JSONArray result;
-    public JSONArray getHTTP(String url, Context context){
+    public JSONArray getHTTP(String url, Context context, String arrayName){
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -26,7 +26,7 @@ public class HTTPService extends Activity {
                     public void onResponse(JSONObject response) {
                         try {
                             System.out.println(response);
-                            result = response.getJSONArray("");
+                            result = response.getJSONArray(arrayName);
 
                         } catch (JSONException e) {
                             e.printStackTrace();

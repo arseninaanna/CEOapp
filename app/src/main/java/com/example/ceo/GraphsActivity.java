@@ -1,18 +1,10 @@
 package com.example.ceo;
 
-import android.app.VoiceInteractor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
@@ -22,14 +14,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class GraphsActivity extends AppCompatActivity {
 
     String url = "http://ec2-18-222-89-34.us-east-2.compute.amazonaws.com/graph";
+    GraphView happiness = findViewById(R.id.happiness);
+    GraphView orders = findViewById(R.id.orders);
+    GraphView income = findViewById(R.id.income);
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,42 +39,78 @@ public class GraphsActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> finish());
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
+        // Graphs settings
+        graphSettings(happiness, getResources().getString(R.string.customer_happiness_label));
+        graphSettings(orders, getResources().getString(R.string.orders_number_label));
+        graphSettings(income, getResources().getString(R.string.income_number));
+
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(new Runnable() {
+        /*scheduler.scheduleAtFixedRate(new Runnable() {
 
             @Override
             public void run() {
-                //HTTPService service = new HTTPService();
-                //JSONArray array = service.getHTTP(url, getApplicationContext());
-                System.out.println("hihihih");
+                HTTPService service = new HTTPService();
+                JSONArray array = service.getHTTP(url, getApplicationContext(), "data");
+                try {
+                    ArrayList<double[][]> list = parseJSON(array);
+                    redrawGraphs(list);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
-        }, 0, 1, TimeUnit.DAYS);
+        }, 0, 1, TimeUnit.DAYS);*/
 
-        GraphView happiness = findViewById(R.id.happiness);
-        graphSettings(happiness, getResources().getString(R.string.customer_happiness_label));
-
-        // Adding the data
         double x1[] = {2014, 2015, 2016, 2017, 2018};
         double y1[] = {3.4, 3.6, 4.0, 4.1, 4.35};
         happiness.addSeries(addSeries(x1, y1));
 
-        GraphView orders = findViewById(R.id.orders);
-        graphSettings(orders, getResources().getString(R.string.orders_number_label));
-
-        // Adding the data
         double y2[] = {300456, 356523, 420546, 490523, 545622};
         double x2[] = {2014, 2015, 2016, 2017, 2018};
         orders.addSeries(addSeries(x2, y2));
 
-        GraphView income = findViewById(R.id.income);
-        graphSettings(income, getResources().getString(R.string.income_number));
         double x3[] = {2014, 2015, 2016, 2017, 2018};
         double y3[] = {50000, 27000, 49000, 53400, 55000};
         income.addSeries(addBarSeries(x3, y3));
 
     }
 
-    public void parseJSON(){
+    public ArrayList<double[][]> parseJSON(JSONArray array) throws JSONException {
+        ArrayList<double[][]> list = new ArrayList<>();
+        double[][] data;
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject obj = array.getJSONObject(i);
+            JSONArray x = obj.getJSONArray("x");
+            JSONArray y = obj.getJSONArray("y");
+            data = new double[2][y.length()];
+            for (int j = 0; j < x.length(); j++){
+                data[0][x.length()] = (Double) x.get(j);
+            }
+            for (int j = 0; j < y.length(); j++){
+                data[1][y.length()] = (Double) y.get(j);
+            }
+            list.add(data);
+        }
+        return list;
+    }
+
+    public void redrawGraphs(ArrayList<double[][]> list){
+        happiness.removeAllSeries();
+        orders.removeAllSeries();
+        income.removeAllSeries();
+        for(int i = 0; i < 3; i++){
+            double[][] data = list.get(i);
+            double[] x = data[0];
+            double[] y = data[1];
+            if(i == 0){
+                happiness.addSeries(addSeries(x, y));
+            }
+            else if(i == 1){
+                orders.addSeries(addSeries(x, y));
+            }
+            else {
+                income.addSeries(addSeries(x, y));
+            }
+        }
     }
 
     public LineGraphSeries<DataPoint> addSeries(double x[], double y[]) {
@@ -116,36 +147,6 @@ public class GraphsActivity extends AppCompatActivity {
         graph.setTitle(title);
         graph.setTitleTextSize(52);
 
-    }
-
-    public void makeHTTP(){
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray jsonArray = response.getJSONArray("employees");
-
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject employee = jsonArray.getJSONObject(i);
-
-                                String firstName = employee.getString("firstname");
-                                int age = employee.getInt("age");
-                                String mail = employee.getString("mail");
-
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
-        requestQueue.add(request);
     }
 
 }

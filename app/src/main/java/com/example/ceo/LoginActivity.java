@@ -113,7 +113,7 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 try {
                     flag = false;
-                    makeHTTPPost(email, password, url);
+                    //makeHTTPPost(email, password, url);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
