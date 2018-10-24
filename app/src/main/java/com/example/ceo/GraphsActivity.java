@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 public class GraphsActivity extends AppCompatActivity {
 
-    String url = "http://ec2-52-14-10-206.us-east-2.compute.amazonaws.com/graphs";
+    String url = "http://ec2-18-222-89-34.us-east-2.compute.amazonaws.com/graph";
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,9 +49,9 @@ public class GraphsActivity extends AppCompatActivity {
 
             @Override
             public void run() {
-                HTTPService service = new HTTPService();
-                JSONArray array = service.getHTTP(url, getApplicationContext());
-
+                //HTTPService service = new HTTPService();
+                //JSONArray array = service.getHTTP(url, getApplicationContext());
+                System.out.println("hihihih");
             }
         }, 0, 1, TimeUnit.DAYS);
 

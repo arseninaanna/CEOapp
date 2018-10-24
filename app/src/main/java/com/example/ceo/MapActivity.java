@@ -23,6 +23,7 @@ import java.util.Objects;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private MapView mapView;
+    String url = "http://ec2-18-222-89-34.us-east-2.compute.amazonaws.com/map";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
