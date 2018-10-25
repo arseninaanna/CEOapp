@@ -49,8 +49,6 @@ public class BackendAPI {
     }
 
     private JsonObjectRequest makeRequest(String url, JSONObject data, Response.Listener<JSONObject> respCb, Response.ErrorListener errCb) {
-//        VolleyAsyncTask task = new VolleyAsyncTask(ctx, url, data, respCb, errCb);
-//        return task.execute();
         JSONObject response = null;
         RequestQueue requestQueue = Volley.newRequestQueue(ctx);
 
