@@ -12,7 +12,9 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
+import com.example.ceo.requests.BackendAPI;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,12 +22,15 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
     EditText _emailText;
     EditText _passwordText;
     Button _loginButton;
-    String url = "http://ec2-18-222-89-34.us-east-2.compute.amazonaws.com";
+
+    //String url = "http://ec2-18-222-89-34.us-east-2.compute.amazonaws.com";
     //String url = getResources().getString(R.string.base_url);
     boolean flag = false;
 
@@ -34,27 +39,19 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        _loginButton = (Button) findViewById(R.id.btn_login);
+        _loginButton = findViewById(R.id.btn_login);
+        _loginButton.setOnClickListener(v -> {
+            _emailText = findViewById(R.id.input_email);
+            _passwordText = findViewById(R.id.input_password);
 
-        _loginButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                _emailText = (EditText) findViewById(R.id.input_email);
-                _passwordText = (EditText) findViewById(R.id.input_password);
-                try {
-                    if (login()) {
-                        Intent intent = new Intent(getApplicationContext(), MenuActivity.class);
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(getBaseContext(), "Login or password is wrong", Toast.LENGTH_LONG).show();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
+            login(() -> {
+                if (flag) {
+                    Intent intent = new Intent(getApplicationContext(), MenuActivity.class);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getBaseContext(), "Login or password is wrong", Toast.LENGTH_LONG).show();
                 }
-            }
+            });
         });
 
     }
@@ -64,74 +61,35 @@ public class LoginActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-    public void makeHTTPPost(String email, String password, String myURL) {
-        VolleyLog.DEBUG = true;
-        try {
-            RequestQueue requestQueue = Volley.newRequestQueue(this);
+    public void makeHTTPPost(String email, String password, Runnable callback) {
+        BackendAPI api = new BackendAPI(this);
 
-            JSONObject jsonBody = new JSONObject();
-            jsonBody.put("login", email);
-            jsonBody.put("password", password);
+        api.login(email, password, response -> {
+            flag = response;
+            System.out.println("return " + flag);
 
-            JsonObjectRequest jr = new JsonObjectRequest(myURL, jsonBody, response -> {
-                String res = response.toString();
-                System.out.println("Response: " + res);
-                try {
-                    JSONObject jObj = new JSONObject(res);
-                    String str = jObj.getString("status");
-                    System.out.println("json string: " + str);
-                    if (str.equals("OK")){
-                        flag = true;
-                        System.out.println("true");
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                Log.i("VOLLEY response", response.toString());
-            }, error -> {
-                Log.e("VOLLEY", "Post request failed: " + error.toString(), error);
-            });
-
-            requestQueue.add(jr);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            callback.run();
+        }, error -> {
+        });
     }
 
-    public boolean login() throws IOException, URISyntaxException {
-
+    public void login(Runnable callback) {
         if (!validate()) {
             onLoginFailed();
-            return false;
+            flag = false;
+            callback.run();
+
+            return;
         }
 
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        Thread thread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    flag = false;
-                    makeHTTPPost(email, password, url);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-        });
-
-        thread.start();
-        return flag;
-        //return true;  
+        makeHTTPPost(email, password, callback);
     }
 
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-
     }
 
     public boolean validate() {
