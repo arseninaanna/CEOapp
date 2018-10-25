@@ -14,6 +14,7 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -75,17 +76,18 @@ public class LoginActivity extends AppCompatActivity {
             JsonObjectRequest jr = new JsonObjectRequest(myURL, jsonBody, response -> {
                 String res = response.toString();
                 System.out.println("Response: " + res);
-                /*try {
-                    JSONArray arr = new JSONArray(res);
-                    JSONObject jObj = arr.getJSONObject(0);
+                try {
+                    JSONObject jObj = new JSONObject(res);
                     String str = jObj.getString("status");
+                    System.out.println("json string: " + str);
                     if (str.equals("OK")){
                         flag = true;
+                        System.out.println("true");
                     }
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                }*/
+                }
                 Log.i("VOLLEY response", response.toString());
             }, error -> {
                 Log.e("VOLLEY", "Post request failed: " + error.toString(), error);
@@ -113,7 +115,7 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 try {
                     flag = false;
-                    //makeHTTPPost(email, password, url);
+                    makeHTTPPost(email, password, url);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -123,8 +125,8 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         thread.start();
-        //return flag;
-        return true;  //TODO return flag when server is ready
+        return flag;
+        //return true;  
     }
 
     public void onLoginFailed() {
