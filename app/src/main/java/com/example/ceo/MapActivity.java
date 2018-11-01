@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private MapView mapView;
     String url = "http://ec2-18-222-89-34.us-east-2.compute.amazonaws.com/map";
+    private MapboxMap boxMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,79 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    }
+
+    public double[][] parseJSON(JSONArray array) throws JSONException {
+        ArrayList<double[][]> list = new ArrayList<>();
+        double[][] data;
+        data = new double[2][array.length()];
+        JSONObject object = array.getJSONObject(0);
+        JSONArray x = object.getJSONArray("x");
+        JSONArray y = object.getJSONArray("y");
+        for (int i = 0; i < x.length(); i++) {
+            data[i][0] = (Double) x.get(i);
+            data[i][1] = (Double) y.get(i);
+        }
+        return data;
+    }
+
+    public void initMarkers(double[][] list) {
+        boxMap.clear();
+
+        ArrayList<LatLng> init_positions = new ArrayList<>();
+        for(int i = 0; i < list.length; i++){
+            init_positions.add(new LatLng(list[i][0], list[i][1]));
+        }
+
+        // Adding markers at initial positions.
+        for (int i = 0; i < init_positions.size(); i++) {
+            boxMap.addMarker(new MarkerOptions()
+                    .position(init_positions.get(i))
+                    .title("Driver " + i)
+                    .snippet(""));
+        }
+    }
+
+    public void moveMarkers(double[][] list) {
+        ArrayList<LatLng> destinations = new ArrayList<>();
+        for(int i = 0; i < list.length; i++){
+            destinations.add(new LatLng(list[i][0], list[i][1]));
+        }
+
+        // Durations of anumation.
+        int duration = 50000;
+
+        // Getting the list of markers on our map.
+        List<Marker> markers = boxMap.getMarkers();
+
+        // Animating the markers due our coordinates.
+        ValueAnimator markerAnimator;
+        for (int i = 0; i < markers.size(); i++) {
+            Marker current = markers.get(i);
+
+            markerAnimator = ObjectAnimator.ofObject(current, "position",
+                    new LatLngEvaluator(), current.getPosition(), destinations.get(i));
+            markerAnimator.setDuration(duration);
+            markerAnimator.start();
+        }
+    }
+
+    public void resizeMap() {
+        // Build the bounds.
+        LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+        for (Marker driver_i_pos : boxMap.getMarkers()) {
+            boundsBuilder.include(driver_i_pos.getPosition());
+        }
+
+        // Animate the camera, so all the cars will be in the visible box.
+        boxMap.animateCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 100));
+    }
+
+    @Override
+    public void onMapReady(MapboxMap mapboxMap) {
+        boxMap = mapboxMap;
+
+        /*ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(new Runnable() {
 
             @Override
@@ -59,95 +132,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 HTTPService service = new HTTPService();
                 JSONArray array = service.getHTTP(url, getApplicationContext(), "data");
                 try {
-                    ArrayList<double[][]> list = parseJSON(array);
-                    moveMarkers(list);
+                    double[][] list = parseJSON(array);
+
+                    if (boxMap.getMarkers().size() > 0) {
+                        moveMarkers(list);
+                    } else {
+                        initMarkers(list);
+                    }
+
+                    resizeMap();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-        }, 0, 1, TimeUnit.DAYS);
-    }
-
-    public ArrayList<double[][]> parseJSON(JSONArray array) throws JSONException {
-        ArrayList<double[][]> list = new ArrayList<>();
-        double[][] data;
-        data = new double[2][array.length()];
-        for (int i = 0; i < array.length(); i++) {
-            JSONObject obj = array.getJSONObject(i);
-            double x = (Double) obj.get("x");
-            double y = (Double) obj.get("y");
-            data[0][i] = x;
-            data[1][i] = y;
-        }
-        list.add(data);
-        return list;
-    }
-
-    public void moveMarkers(ArrayList<double[][]> list){
-
-    }
-
-    @Override
-    public void onMapReady(MapboxMap mapboxMap) {
-
-        // FIXME: Make this more elegant
-        // Hardcoded inflating of map with moving markers.
-        ArrayList<LatLng> init_positions = new ArrayList<>();
-        init_positions.add(new LatLng(55.740652, 48.787812));
-        init_positions.add(new LatLng(55.859167, 48.847512));
-        init_positions.add(new LatLng(55.826962, 49.095361));
-        init_positions.add(new LatLng(55.842353, 49.133652));
-        init_positions.add(new LatLng(55.734666, 48.789760));
-        init_positions.add(new LatLng(55.827350, 49.019847));
-        init_positions.add(new LatLng(55.807866, 48.943318));
-        init_positions.add(new LatLng(55.741655, 48.935471));
-        init_positions.add(new LatLng(55.777371, 49.145207));
-        init_positions.add(new LatLng(55.743659, 49.105047));
-
-        ArrayList<LatLng> destinations = new ArrayList<>();
-        destinations.add(new LatLng(55.761450, 48.817034));
-        destinations.add(new LatLng(55.871049, 48.711339));
-        destinations.add(new LatLng(55.826981, 49.146921));
-        destinations.add(new LatLng(55.813524, 49.133618));
-        destinations.add(new LatLng(55.711877, 48.883250));
-        destinations.add(new LatLng(55.853112, 48.879084));
-        destinations.add(new LatLng(55.801285, 48.976643));
-        destinations.add(new LatLng(55.758480, 48.965482));
-        destinations.add(new LatLng(55.793184, 49.153616));
-        destinations.add(new LatLng(55.757012, 49.105556));
-
-
-        // Adding markers at initial positions.
-        for (int i = 0; i < init_positions.size(); i++) {
-            mapboxMap.addMarker(new MarkerOptions()
-                    .position(init_positions.get(i))
-                    .title("Driver " + i)
-                    .snippet(""));
-        }
-
-        // Build the bounds.
-        LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
-        for (LatLng driver_i_from : init_positions) {
-            boundsBuilder.include(driver_i_from);
-        }
-
-        // Animate the camera, so all the cars will be in the visible box.
-        mapboxMap.animateCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 100));
-
-        // Durations of anumation.
-        int[] durations = {50000, 50000, 50000, 38400, 40600, 50700, 50000, 50800, 38400, 40000};
-
-        // Getting the list of markers on our map.
-        List<Marker> markers = mapboxMap.getMarkers();
-
-        // Animating the markers due our coordinates.
-        ValueAnimator markerAnimator;
-        for (int i = 0; i < markers.size(); i++) {
-            markerAnimator = ObjectAnimator.ofObject(markers.get(i), "position",
-                    new LatLngEvaluator(), markers.get(i).getPosition(), destinations.get(i));
-            markerAnimator.setDuration(durations[i]);
-            markerAnimator.start();
-        }
+        }, 0, 1, TimeUnit.SECONDS);*/
     }
 
 

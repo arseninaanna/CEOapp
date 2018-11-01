@@ -22,13 +22,17 @@ import java.util.concurrent.ScheduledExecutorService;
 public class GraphsActivity extends AppCompatActivity {
 
     String url = "http://ec2-18-222-89-34.us-east-2.compute.amazonaws.com/graph";
-    GraphView happiness = findViewById(R.id.happiness);
-    GraphView orders = findViewById(R.id.orders);
-    GraphView income = findViewById(R.id.income);
+    GraphView happiness;
+    GraphView orders;
+    GraphView income;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graphs);
+
+        happiness = findViewById(R.id.happiness);
+        orders = findViewById(R.id.orders);
+        income = findViewById(R.id.income);
 
         // Add the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
