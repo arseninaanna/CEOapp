@@ -72,9 +72,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         boxMap.clear();
 
         ArrayList<LatLng> init_positions = new ArrayList<>();
-        for(int i = 0; i < list.length; i++){
+        /*for(int i = 0; i < list.length; i++){
             init_positions.add(new LatLng(list[i][0], list[i][1]));
-        }
+        }*/
+
+        init_positions.add(new LatLng(55.740652, 48.787812));
+        init_positions.add(new LatLng(55.859167, 48.847512));
+        init_positions.add(new LatLng(55.826962, 49.095361));
+        init_positions.add(new LatLng(55.842353, 49.133652));
+        init_positions.add(new LatLng(55.734666, 48.789760));
+        init_positions.add(new LatLng(55.827350, 49.019847));
+        init_positions.add(new LatLng(55.807866, 48.943318));
+        init_positions.add(new LatLng(55.741655, 48.935471));
+        init_positions.add(new LatLng(55.777371, 49.145207));
+        init_positions.add(new LatLng(55.743659, 49.105047));
 
         // Adding markers at initial positions.
         for (int i = 0; i < init_positions.size(); i++) {
@@ -87,9 +98,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void moveMarkers(double[][] list) {
         ArrayList<LatLng> destinations = new ArrayList<>();
-        for(int i = 0; i < list.length; i++){
+        /*for(int i = 0; i < list.length; i++){
             destinations.add(new LatLng(list[i][0], list[i][1]));
-        }
+        }*/
+
+        destinations.add(new LatLng(55.761450, 48.817034));
+        destinations.add(new LatLng(55.871049, 48.711339));
+        destinations.add(new LatLng(55.826981, 49.146921));
+        destinations.add(new LatLng(55.813524, 49.133618));
+        destinations.add(new LatLng(55.711877, 48.883250));
+        destinations.add(new LatLng(55.853112, 48.879084));
+        destinations.add(new LatLng(55.801285, 48.976643));
+        destinations.add(new LatLng(55.758480, 48.965482));
+        destinations.add(new LatLng(55.793184, 49.153616));
+        destinations.add(new LatLng(55.757012, 49.105556));
 
         // Durations of anumation.
         int duration = 50000;
@@ -146,6 +168,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
         }, 0, 1, TimeUnit.SECONDS);*/
+        initMarkers(null);
+        moveMarkers(null);
+        resizeMap();
     }
 
 
