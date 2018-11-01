@@ -17,9 +17,16 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private MapView mapView;
@@ -43,6 +50,41 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(new Runnable() {
+
+            @Override
+            public void run() {
+                HTTPService service = new HTTPService();
+                JSONArray array = service.getHTTP(url, getApplicationContext(), "data");
+                try {
+                    ArrayList<double[][]> list = parseJSON(array);
+                    moveMarkers(list);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 0, 1, TimeUnit.DAYS);
+    }
+
+    public ArrayList<double[][]> parseJSON(JSONArray array) throws JSONException {
+        ArrayList<double[][]> list = new ArrayList<>();
+        double[][] data;
+        data = new double[2][array.length()];
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject obj = array.getJSONObject(i);
+            double x = (Double) obj.get("x");
+            double y = (Double) obj.get("y");
+            data[0][i] = x;
+            data[1][i] = y;
+        }
+        list.add(data);
+        return list;
+    }
+
+    public void moveMarkers(ArrayList<double[][]> list){
+
     }
 
     @Override

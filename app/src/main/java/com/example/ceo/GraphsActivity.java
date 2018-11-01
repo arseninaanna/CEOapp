@@ -83,10 +83,10 @@ public class GraphsActivity extends AppCompatActivity {
             JSONArray y = obj.getJSONArray("y");
             data = new double[2][y.length()];
             for (int j = 0; j < x.length(); j++){
-                data[0][x.length()] = (Double) x.get(j);
+                data[0][j] = (Double) x.get(j);
             }
             for (int j = 0; j < y.length(); j++){
-                data[1][y.length()] = (Double) y.get(j);
+                data[1][j] = (Double) y.get(j);
             }
             list.add(data);
         }
