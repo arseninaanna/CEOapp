@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.android.volley.Response;
+import com.example.ceo.requests.BackendAPI;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
@@ -18,10 +20,11 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GraphsActivity extends AppCompatActivity {
 
-    String url = "http://ec2-18-222-89-34.us-east-2.compute.amazonaws.com/graph";
+    String url = " http://ec2-18-217-227-171.us-east-2.compute.amazonaws.com/graph";
     GraphView happiness;
     GraphView orders;
     GraphView income;
@@ -49,20 +52,22 @@ public class GraphsActivity extends AppCompatActivity {
         graphSettings(income, getResources().getString(R.string.income_number));
 
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        /*scheduler.scheduleAtFixedRate(new Runnable() {
+        scheduler.scheduleAtFixedRate(new Runnable() {
 
             @Override
             public void run() {
-                HTTPService service = new HTTPService();
-                JSONArray array = service.getHTTP(url, getApplicationContext(), "data");
-                try {
-                    ArrayList<double[][]> list = parseJSON(array);
-                    redrawGraphs(list);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                makeHTTPGet(response -> {
+                    JSONArray array = response;
+                    System.out.println("Graph: " + array.toString());
+                    /*try {
+                        ArrayList<double[][]> list = parseJSON(array);
+                        redrawGraphs(list);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }*/
+                });
             }
-        }, 0, 1, TimeUnit.DAYS);*/
+        }, 0, 1, TimeUnit.DAYS);
 
         double x1[] = {2014, 2015, 2016, 2017, 2018};
         double y1[] = {3.4, 3.6, 4.0, 4.1, 4.35};
@@ -76,6 +81,13 @@ public class GraphsActivity extends AppCompatActivity {
         double y3[] = {50000, 27000, 49000, 53400, 55000};
         income.addSeries(addBarSeries(x3, y3));
 
+    }
+
+    public void makeHTTPGet(Response.Listener<JSONArray> respCb){
+        BackendAPI api = new BackendAPI(this);
+        api.get("/graph", respCb, error -> {
+
+        });
     }
 
     public ArrayList<double[][]> parseJSON(JSONArray array) throws JSONException {

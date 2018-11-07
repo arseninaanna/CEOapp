@@ -30,8 +30,6 @@ public class LoginActivity extends AppCompatActivity {
     EditText _passwordText;
     Button _loginButton;
 
-    //String url = "http://ec2-18-222-89-34.us-east-2.compute.amazonaws.com";
-    //String url = getResources().getString(R.string.base_url);
     boolean flag = false;
 
     @Override

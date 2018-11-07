@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.android.volley.Response;
+import com.example.ceo.requests.BackendAPI;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
@@ -30,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private MapView mapView;
-    String url = "http://ec2-18-222-89-34.us-east-2.compute.amazonaws.com/map";
     private MapboxMap boxMap;
+    JSONArray array;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +59,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public double[][] parseJSON(JSONArray array) throws JSONException {
         ArrayList<double[][]> list = new ArrayList<>();
         double[][] data;
-        data = new double[2][array.length()];
         JSONObject object = array.getJSONObject(0);
         JSONArray x = object.getJSONArray("x");
+        System.out.println(x.toString());
+
         JSONArray y = object.getJSONArray("y");
+        System.out.println(y.toString());
+        data = new double[y.length()][2];
         for (int i = 0; i < x.length(); i++) {
             data[i][0] = (Double) x.get(i);
             data[i][1] = (Double) y.get(i);
@@ -72,11 +77,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         boxMap.clear();
 
         ArrayList<LatLng> init_positions = new ArrayList<>();
-        /*for(int i = 0; i < list.length; i++){
+        for(int i = 0; i < list.length; i++){
             init_positions.add(new LatLng(list[i][0], list[i][1]));
-        }*/
+        }
 
-        init_positions.add(new LatLng(55.740652, 48.787812));
+        /*init_positions.add(new LatLng(55.740652, 48.787812));
         init_positions.add(new LatLng(55.859167, 48.847512));
         init_positions.add(new LatLng(55.826962, 49.095361));
         init_positions.add(new LatLng(55.842353, 49.133652));
@@ -85,7 +90,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         init_positions.add(new LatLng(55.807866, 48.943318));
         init_positions.add(new LatLng(55.741655, 48.935471));
         init_positions.add(new LatLng(55.777371, 49.145207));
-        init_positions.add(new LatLng(55.743659, 49.105047));
+        init_positions.add(new LatLng(55.743659, 49.105047));*/
 
         // Adding markers at initial positions.
         for (int i = 0; i < init_positions.size(); i++) {
@@ -98,11 +103,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void moveMarkers(double[][] list) {
         ArrayList<LatLng> destinations = new ArrayList<>();
-        /*for(int i = 0; i < list.length; i++){
+        for(int i = 0; i < list.length; i++){
             destinations.add(new LatLng(list[i][0], list[i][1]));
-        }*/
+        }
 
-        destinations.add(new LatLng(55.761450, 48.817034));
+        /*destinations.add(new LatLng(55.761450, 48.817034));
         destinations.add(new LatLng(55.871049, 48.711339));
         destinations.add(new LatLng(55.826981, 49.146921));
         destinations.add(new LatLng(55.813524, 49.133618));
@@ -111,7 +116,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         destinations.add(new LatLng(55.801285, 48.976643));
         destinations.add(new LatLng(55.758480, 48.965482));
         destinations.add(new LatLng(55.793184, 49.153616));
-        destinations.add(new LatLng(55.757012, 49.105556));
+        destinations.add(new LatLng(55.757012, 49.105556));*/
 
         // Durations of anumation.
         int duration = 50000;
@@ -142,35 +147,47 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         boxMap.animateCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 100));
     }
 
+
+    public void makeHTTPGet(Response.Listener<JSONArray> respCb){
+        BackendAPI api = new BackendAPI(this);
+        api.get("/map", respCb, error -> {
+
+        });
+    }
+
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         boxMap = mapboxMap;
 
-        /*ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(new Runnable() {
 
             @Override
             public void run() {
-                HTTPService service = new HTTPService();
-                JSONArray array = service.getHTTP(url, getApplicationContext(), "data");
-                try {
-                    double[][] list = parseJSON(array);
+                System.out.println("Hi from thread");
+                makeHTTPGet(response -> {
+                    array = response;
+                    System.out.println("Map: " + array.toString());
+                    try {
+                        double[][] list = parseJSON(array);
+                        System.out.println(list.toString());
+                        if (boxMap.getMarkers().size() > 0) {
+                            moveMarkers(list);
+                        } else {
+                            initMarkers(list);
+                        }
 
-                    if (boxMap.getMarkers().size() > 0) {
-                        moveMarkers(list);
-                    } else {
-                        initMarkers(list);
+                        resizeMap();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
+                });
 
-                    resizeMap();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
             }
-        }, 0, 1, TimeUnit.SECONDS);*/
-        initMarkers(null);
-        moveMarkers(null);
-        resizeMap();
+        }, 0, 10, TimeUnit.SECONDS);
+        //initMarkers(null);
+        //moveMarkers(null);
+        //resizeMap();
     }
 
 
