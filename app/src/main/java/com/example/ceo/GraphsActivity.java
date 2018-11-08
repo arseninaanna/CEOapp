@@ -59,17 +59,17 @@ public class GraphsActivity extends AppCompatActivity {
                 makeHTTPGet(response -> {
                     JSONArray array = response;
                     System.out.println("Graph: " + array.toString());
-                    /*try {
+                    try {
                         ArrayList<double[][]> list = parseJSON(array);
                         redrawGraphs(list);
                     } catch (JSONException e) {
                         e.printStackTrace();
-                    }*/
+                    }
                 });
             }
         }, 0, 1, TimeUnit.DAYS);
 
-        double x1[] = {2014, 2015, 2016, 2017, 2018};
+        /*double x1[] = {2014, 2015, 2016, 2017, 2018};
         double y1[] = {3.4, 3.6, 4.0, 4.1, 4.35};
         happiness.addSeries(addSeries(x1, y1));
 
@@ -79,7 +79,7 @@ public class GraphsActivity extends AppCompatActivity {
 
         double x3[] = {2014, 2015, 2016, 2017, 2018};
         double y3[] = {50000, 27000, 49000, 53400, 55000};
-        income.addSeries(addBarSeries(x3, y3));
+        income.addSeries(addBarSeries(x3, y3));*/
 
     }
 
@@ -99,10 +99,10 @@ public class GraphsActivity extends AppCompatActivity {
             JSONArray y = obj.getJSONArray("y");
             data = new double[2][y.length()];
             for (int j = 0; j < x.length(); j++){
-                data[0][j] = (Double) x.get(j);
+                data[0][j] = Double.parseDouble(x.get(j).toString());
             }
             for (int j = 0; j < y.length(); j++){
-                data[1][j] = (Double) y.get(j);
+                data[1][j] = Double.parseDouble(y.get(j).toString());
             }
             list.add(data);
         }
@@ -124,7 +124,7 @@ public class GraphsActivity extends AppCompatActivity {
                 orders.addSeries(addSeries(x, y));
             }
             else {
-                income.addSeries(addSeries(x, y));
+                income.addSeries(addBarSeries(x, y));
             }
         }
     }

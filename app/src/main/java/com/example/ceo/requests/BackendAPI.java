@@ -18,7 +18,7 @@ import org.json.JSONObject;
 public class BackendAPI {
 
     private String TAG = "VOLLEY";
-    String baseUrl = "http://ec2-18-217-227-171.us-east-2.compute.amazonaws.com";
+    String baseUrl = "http://ec2-18-220-182-93.us-east-2.compute.amazonaws.com";
     Context ctx;
 
     JSONArray graph;
