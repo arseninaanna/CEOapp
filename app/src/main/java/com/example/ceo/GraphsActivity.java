@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.example.ceo.requests.BackendAPI;
@@ -26,16 +27,17 @@ public class GraphsActivity extends AppCompatActivity {
 
     String url = " http://ec2-18-217-227-171.us-east-2.compute.amazonaws.com/graph";
     GraphView happiness;
-    GraphView orders;
     GraphView income;
+    GraphView orders;
+    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graphs);
 
         happiness = findViewById(R.id.happiness);
-        orders = findViewById(R.id.orders);
         income = findViewById(R.id.income);
+        orders = findViewById(R.id.orders);
 
         // Add the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -48,10 +50,9 @@ public class GraphsActivity extends AppCompatActivity {
 
         // Graphs settings
         graphSettings(happiness, getResources().getString(R.string.customer_happiness_label));
-        graphSettings(orders, getResources().getString(R.string.orders_number_label));
         graphSettings(income, getResources().getString(R.string.income_number));
+        graphSettings(orders, getResources().getString(R.string.orders_number_label));
 
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(new Runnable() {
 
             @Override
@@ -69,24 +70,15 @@ public class GraphsActivity extends AppCompatActivity {
             }
         }, 0, 1, TimeUnit.DAYS);
 
-        /*double x1[] = {2014, 2015, 2016, 2017, 2018};
-        double y1[] = {3.4, 3.6, 4.0, 4.1, 4.35};
-        happiness.addSeries(addSeries(x1, y1));
-
-        double y2[] = {300456, 356523, 420546, 490523, 545622};
-        double x2[] = {2014, 2015, 2016, 2017, 2018};
-        orders.addSeries(addSeries(x2, y2));
-
-        double x3[] = {2014, 2015, 2016, 2017, 2018};
-        double y3[] = {50000, 27000, 49000, 53400, 55000};
-        income.addSeries(addBarSeries(x3, y3));*/
-
     }
 
     public void makeHTTPGet(Response.Listener<JSONArray> respCb){
         BackendAPI api = new BackendAPI(this);
         api.get("/graph", respCb, error -> {
-
+            Toast.makeText(getBaseContext(), "Problems with server, sorry cannot render",
+                    Toast.LENGTH_LONG).show();
+            scheduler.shutdown();
+            finish();
         });
     }
 
@@ -111,8 +103,8 @@ public class GraphsActivity extends AppCompatActivity {
 
     public void redrawGraphs(ArrayList<double[][]> list){
         happiness.removeAllSeries();
-        orders.removeAllSeries();
         income.removeAllSeries();
+        orders.removeAllSeries();
         for(int i = 0; i < 3; i++){
             double[][] data = list.get(i);
             double[] x = data[0];
@@ -121,10 +113,10 @@ public class GraphsActivity extends AppCompatActivity {
                 happiness.addSeries(addSeries(x, y));
             }
             else if(i == 1){
-                orders.addSeries(addSeries(x, y));
+                income.addSeries(addSeries(x, y));
             }
             else {
-                income.addSeries(addBarSeries(x, y));
+                orders.addSeries(addBarSeries(x, y));
             }
         }
     }

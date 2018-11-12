@@ -6,6 +6,7 @@ import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.example.ceo.requests.BackendAPI;
@@ -34,6 +35,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private MapView mapView;
     private MapboxMap boxMap;
     JSONArray array;
+    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,17 +83,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             init_positions.add(new LatLng(list[i][0], list[i][1]));
         }
 
-        /*init_positions.add(new LatLng(55.740652, 48.787812));
-        init_positions.add(new LatLng(55.859167, 48.847512));
-        init_positions.add(new LatLng(55.826962, 49.095361));
-        init_positions.add(new LatLng(55.842353, 49.133652));
-        init_positions.add(new LatLng(55.734666, 48.789760));
-        init_positions.add(new LatLng(55.827350, 49.019847));
-        init_positions.add(new LatLng(55.807866, 48.943318));
-        init_positions.add(new LatLng(55.741655, 48.935471));
-        init_positions.add(new LatLng(55.777371, 49.145207));
-        init_positions.add(new LatLng(55.743659, 49.105047));*/
-
         // Adding markers at initial positions.
         for (int i = 0; i < init_positions.size(); i++) {
             boxMap.addMarker(new MarkerOptions()
@@ -106,17 +97,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         for(int i = 0; i < list.length; i++){
             destinations.add(new LatLng(list[i][0], list[i][1]));
         }
-
-        /*destinations.add(new LatLng(55.761450, 48.817034));
-        destinations.add(new LatLng(55.871049, 48.711339));
-        destinations.add(new LatLng(55.826981, 49.146921));
-        destinations.add(new LatLng(55.813524, 49.133618));
-        destinations.add(new LatLng(55.711877, 48.883250));
-        destinations.add(new LatLng(55.853112, 48.879084));
-        destinations.add(new LatLng(55.801285, 48.976643));
-        destinations.add(new LatLng(55.758480, 48.965482));
-        destinations.add(new LatLng(55.793184, 49.153616));
-        destinations.add(new LatLng(55.757012, 49.105556));*/
 
         // Durations of anumation.
         int duration = 50000;
@@ -151,7 +131,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void makeHTTPGet(Response.Listener<JSONArray> respCb){
         BackendAPI api = new BackendAPI(this);
         api.get("/map", respCb, error -> {
-
+            Toast.makeText(getBaseContext(), "Problems with server, sorry cannot render",
+                    Toast.LENGTH_LONG).show();
+            finish();
         });
     }
 
@@ -159,7 +141,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(MapboxMap mapboxMap) {
         boxMap = mapboxMap;
 
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(new Runnable() {
 
             @Override
@@ -184,10 +165,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 });
 
             }
-        }, 0, 10, TimeUnit.SECONDS);
-        //initMarkers(null);
-        //moveMarkers(null);
-        //resizeMap();
+        }, 0, 5, TimeUnit.SECONDS);
+
     }
 
 
@@ -228,6 +207,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onStop() {
         super.onStop();
         mapView.onStop();
+        scheduler.shutdown();
+        System.out.println("shutting down...........");
     }
 
     @Override

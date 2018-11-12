@@ -68,6 +68,7 @@ public class LoginActivity extends AppCompatActivity {
 
             callback.run();
         }, error -> {
+            Toast.makeText(getBaseContext(), "Problems with server, sorry", Toast.LENGTH_LONG).show();
         });
     }
 
