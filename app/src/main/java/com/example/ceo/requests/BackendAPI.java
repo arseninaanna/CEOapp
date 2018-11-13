@@ -17,11 +17,9 @@ import org.json.JSONObject;
 
 public class BackendAPI {
 
-    private String TAG = "VOLLEY";
-    String baseUrl = "http://ec2-18-220-182-93.us-east-2.compute.amazonaws.com";
+    private String TAG = VolleyLog.TAG;
+    String baseUrl = "http://ec2-18-224-185-2.us-east-2.compute.amazonaws.com";
     Context ctx;
-
-    JSONArray graph;
 
     public BackendAPI(Context ctx) {
         VolleyLog.DEBUG = true;
@@ -30,7 +28,7 @@ public class BackendAPI {
     }
 
     public void login(String email, String password, Response.Listener<Boolean> respCb, Response.ErrorListener errCb) {
-        String url = baseUrl + "/login";
+        String url = baseUrl + "/";
 
         JSONObject jsonBody = new JSONObject();
         try {
@@ -44,6 +42,7 @@ public class BackendAPI {
             try {
                 String str = response.getString("status");
                 System.out.println("json string: " + str);
+
                 respCb.onResponse(str.equals("OK"));
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -52,7 +51,7 @@ public class BackendAPI {
         }, errCb);
     }
 
-    public void get(String urlEnd, Response.Listener<JSONArray> respCb, Response.ErrorListener errCb){
+    public void get(String urlEnd, Response.Listener<JSONArray> respCb, Response.ErrorListener errCb) {
         String url = baseUrl + urlEnd;
 
         makeGetRequest(url, response -> {
@@ -68,13 +67,10 @@ public class BackendAPI {
     }
 
     private JsonObjectRequest makeRequest(String url, JSONObject data, Response.Listener<JSONObject> respCb, Response.ErrorListener errCb) {
-        JSONObject response = null;
         RequestQueue requestQueue = Volley.newRequestQueue(ctx);
 
         RequestFuture<JSONObject> future = RequestFuture.newFuture();
-        JsonObjectRequest request = new JsonObjectRequest(url, data, resp -> {
-            respCb.onResponse(resp);
-        }, err -> {
+        JsonObjectRequest request = new JsonRequest(url, data, respCb, err -> {
             Log.e(TAG, "Post request failed: " + err.toString(), err);
 
             errCb.onErrorResponse(err);
@@ -85,14 +81,11 @@ public class BackendAPI {
     }
 
     private JsonObjectRequest makeGetRequest(String url, Response.Listener<JSONObject> respCb, Response.ErrorListener errCb) {
-        JSONObject response = null;
         RequestQueue requestQueue = Volley.newRequestQueue(ctx);
 
         RequestFuture<JSONObject> future = RequestFuture.newFuture();
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, new JSONObject(), resp -> {
-            respCb.onResponse(resp);
-        }, err -> {
-            Log.e(TAG, "Post request failed: " + err.toString(), err);
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, new JSONObject(), respCb, err -> {
+            Log.e(TAG, "Get request failed: " + err.toString(), err);
 
             errCb.onErrorResponse(err);
         });
