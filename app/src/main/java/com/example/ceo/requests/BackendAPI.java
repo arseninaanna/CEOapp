@@ -8,7 +8,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
@@ -18,8 +17,8 @@ import org.json.JSONObject;
 public class BackendAPI {
 
     private String TAG = VolleyLog.TAG;
-    String baseUrl = "http://ec2-18-224-185-2.us-east-2.compute.amazonaws.com";
-    Context ctx;
+    private String baseUrl = "http://ec2-18-224-185-2.us-east-2.compute.amazonaws.com";
+    private Context ctx;
 
     public BackendAPI(Context ctx) {
         VolleyLog.DEBUG = true;
@@ -69,7 +68,6 @@ public class BackendAPI {
     private JsonObjectRequest makeRequest(String url, JSONObject data, Response.Listener<JSONObject> respCb, Response.ErrorListener errCb) {
         RequestQueue requestQueue = Volley.newRequestQueue(ctx);
 
-        RequestFuture<JSONObject> future = RequestFuture.newFuture();
         JsonObjectRequest request = new JsonRequest(url, data, respCb, err -> {
             Log.e(TAG, "Post request failed: " + err.toString(), err);
 
@@ -83,8 +81,7 @@ public class BackendAPI {
     private JsonObjectRequest makeGetRequest(String url, Response.Listener<JSONObject> respCb, Response.ErrorListener errCb) {
         RequestQueue requestQueue = Volley.newRequestQueue(ctx);
 
-        RequestFuture<JSONObject> future = RequestFuture.newFuture();
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, new JSONObject(), respCb, err -> {
+        JsonObjectRequest request = new JsonRequest(Request.Method.GET, url, new JSONObject(), respCb, err -> {
             Log.e(TAG, "Get request failed: " + err.toString(), err);
 
             errCb.onErrorResponse(err);

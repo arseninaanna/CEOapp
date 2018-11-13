@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.example.ceo.requests.BackendAPI;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -25,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 
 public class GraphsActivity extends AppCompatActivity {
 
-    String url = " http://ec2-18-217-227-171.us-east-2.compute.amazonaws.com/graph";
     GraphView happiness;
     GraphView income;
     GraphView orders;
@@ -49,9 +49,9 @@ public class GraphsActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         // Graphs settings
-        graphSettings(happiness, getResources().getString(R.string.customer_happiness_label));
-        graphSettings(income, getResources().getString(R.string.income_number));
-        graphSettings(orders, getResources().getString(R.string.orders_number_label));
+        graphSettings(happiness, getResources().getString(R.string.customer_happiness_label), "Happiness", "Last 7 days");
+        graphSettings(income, getResources().getString(R.string.income_number), "Income", "Last 3 years");
+        graphSettings(orders, getResources().getString(R.string.orders_number_label), "Orders", "Last 3 years");
 
         scheduler.scheduleAtFixedRate(new Runnable() {
 
@@ -113,7 +113,7 @@ public class GraphsActivity extends AppCompatActivity {
                 happiness.addSeries(addSeries(x, y));
             }
             else if(i == 1){
-                income.addSeries(addSeries(x, y));
+                income.addSeries(addBarSeries(x, y));
             }
             else {
                 orders.addSeries(addBarSeries(x, y));
@@ -144,13 +144,17 @@ public class GraphsActivity extends AppCompatActivity {
         return series;
     }
 
-    public void graphSettings(GraphView graph, String title){
+    public void graphSettings(GraphView graph, String title, String y_axis, String x_axis){
         graph.getGridLabelRenderer().setGridColor(getColor(R.color.black));
         graph.getGridLabelRenderer().setHorizontalLabelsColor(getColor(R.color.black));
         graph.getGridLabelRenderer().setVerticalLabelsColor(getColor(R.color.black));
         graph.getGridLabelRenderer().setVerticalAxisTitleColor(getColor(R.color.black));
         graph.getGridLabelRenderer().setHorizontalAxisTitleColor(getColor(R.color.black));
         graph.setTitleColor(getColor(R.color.black));
+
+        GridLabelRenderer gridLabel = graph.getGridLabelRenderer();
+        gridLabel.setHorizontalAxisTitle(x_axis);
+        gridLabel.setVerticalAxisTitle(y_axis);
 
         graph.setTitle(title);
         graph.setTitleTextSize(52);

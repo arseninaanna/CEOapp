@@ -39,7 +39,7 @@ class JsonRequest extends JsonObjectRequest {
             return Response.success(new JSONObject(responseString), HttpHeaderParser.parseCacheHeaders(response));
         } catch (JSONException je) {
             if (VolleyLog.DEBUG) {
-                Log.d(VolleyLog.TAG, "Invalid JSON response: " + responseString);
+                Log.e(VolleyLog.TAG, "Invalid JSON response: " + responseString);
             }
 
             return Response.error(new ParseError(je));

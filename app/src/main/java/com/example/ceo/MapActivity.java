@@ -66,11 +66,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         System.out.println(x.toString());
 
         JSONArray y = object.getJSONArray("y");
+        JSONArray id = object.getJSONArray("id");
         System.out.println(y.toString());
-        data = new double[y.length()][2];
+        data = new double[y.length()][3];
         for (int i = 0; i < x.length(); i++) {
             data[i][0] = (Double) x.get(i);
             data[i][1] = (Double) y.get(i);
+            data[i][2] = (Integer) id.get(i);
         }
         return data;
     }
@@ -87,7 +89,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         for (int i = 0; i < init_positions.size(); i++) {
             boxMap.addMarker(new MarkerOptions()
                     .position(init_positions.get(i))
-                    .title("Driver " + i)
+                    .title("Driver " + list[i][2])
                     .snippet(""));
         }
     }
