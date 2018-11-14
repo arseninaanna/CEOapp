@@ -50,8 +50,8 @@ public class GraphsActivity extends AppCompatActivity {
 
         // Graphs settings
         graphSettings(happiness, getResources().getString(R.string.customer_happiness_label), "Happiness", "Last 7 days");
-        graphSettings(income, getResources().getString(R.string.income_number), "Income", "Last 3 years");
-        graphSettings(orders, getResources().getString(R.string.orders_number_label), "Orders", "Last 3 years");
+        graphSettings(income, getResources().getString(R.string.income_number), "Income", "Last 7 days");
+        graphSettings(orders, getResources().getString(R.string.orders_number_label), "Orders", "Last 7 days");
 
         scheduler.scheduleAtFixedRate(new Runnable() {
 

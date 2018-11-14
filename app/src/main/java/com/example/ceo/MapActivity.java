@@ -167,7 +167,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 });
 
             }
-        }, 0, 5, TimeUnit.SECONDS);
+        }, 0, 10, TimeUnit.SECONDS);
 
     }
 
