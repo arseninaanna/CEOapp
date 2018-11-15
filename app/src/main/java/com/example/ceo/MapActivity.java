@@ -113,6 +113,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             markerAnimator = ObjectAnimator.ofObject(current, "position",
                     new LatLngEvaluator(), current.getPosition(), destinations.get(i));
+
             markerAnimator.setDuration(duration);
             markerAnimator.start();
         }

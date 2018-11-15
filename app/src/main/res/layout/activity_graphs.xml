@@ -18,21 +18,21 @@
             <com.jjoe64.graphview.GraphView
                 android:id="@+id/happiness"
                 android:layout_width="match_parent"
-                android:layout_height="200dip"
+                android:layout_height="300dp"
                 android:padding="8dp"
                 android:paddingTop="16dp" />
 
             <com.jjoe64.graphview.GraphView
                 android:id="@+id/orders"
                 android:layout_width="match_parent"
-                android:layout_height="200dip"
+                android:layout_height="300dp"
                 android:padding="8dp"
                 android:paddingTop="16dp" />
 
             <com.jjoe64.graphview.GraphView
                 android:id="@+id/income"
                 android:layout_width="match_parent"
-                android:layout_height="200dip"
+                android:layout_height="300dip"
                 android:padding="8dp"
                 android:paddingTop="16dp" />
 
